@@ -12,6 +12,7 @@ export interface CompactServiceOptions {
     fields: string;
     simulation: string;
   };
+  'widget.io': Record<string, string>;
 }
 
 export default class CompactService {
@@ -20,6 +21,7 @@ export default class CompactService {
 
   files: CompactServiceOptions['files'];
   finished: CompactServiceOptions['finished'];
+  'widget.io': CompactServiceOptions['widget.io'];
 
   constructor(options: CompactServiceOptions) {
     this.files = Object.entries(options.find).reduce((acc: Record<string, string>, [key, value]: string[]) => {
@@ -34,6 +36,7 @@ export default class CompactService {
     }, {});
 
     this.finished = options.finished;
+    this['widget.io'] = options['widget.io'];
   }
 
   public async readAllFiles() {
@@ -100,9 +103,15 @@ export default class CompactService {
   public async createZip(files: CompactServiceOptions['files']) {
     const zip = new JSZip();
 
-    Object.entries(files)
+    const widgetIOFiles = Object.entries(this['widget.io']).reduce((acc: Record<string, string>, [key, value]) => {
+      acc[key] = files[value];
+
+      return acc;
+    }, {});
+
+    Object.entries(widgetIOFiles)
       .filter(([name, content]) => name && content)
-      .forEach(([name, content]) => zip.file(name.toLowerCase(), content));
+      .forEach(([name, content]) => zip.file(name, content));
 
     zip.file('widget.ini', `[HTML]\npath = "html.txt"\n\n[CSS]\npath = "css.txt"\n\n[JS]\npath = "js.txt"\n\n[FIELDS]\npath = "fields.txt"\n\n[DATA]\npath = "data.txt"`);
 
@@ -114,5 +123,3 @@ export default class CompactService {
       .then((data) => data);
   }
 }
-
-// return fs.writeFile(fsPath + path.basename(path.dirname(fsPath) + '.zip'), data, 'base64');
