@@ -56,6 +56,12 @@ export default class HelloWorld extends BaseCommand {
         'SCRIPT.txt': 'javascript',
         'CF.txt': 'fields',
       },
+      'widget.io': {
+        'css.txt': 'CSS.txt',
+        'html.txt': 'HTML.txt',
+        'js.txt': 'SCRIPT.txt',
+        'fields.txt': 'CF.txt',
+      },
     });
 
     const files = await compact.readAllFiles();
