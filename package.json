@@ -15,9 +15,23 @@
     "commands": [
       {
         "command": "vortaik.helloWorld",
-        "title": "Hello World"
+        "title": "CLICA AQUIIIIIIIIIIII!!!"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vortaik.helloWorld"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "vortaik.helloWorld",
+          "when": "explorerResourceIsFolder",
+          "group": "vortaik@1"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -39,12 +53,16 @@
     "cssnano": "^7.0.6",
     "eslint": "^9.13.0",
     "postcss": "^8.4.47",
-    "postcss-nesting": "^13.0.1",
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@types/html-minifier": "^4.0.5",
+    "@types/ini": "^4.1.1",
     "clean-css": "^5.3.3",
+    "html-minifier": "^4.0.0",
+    "ini": "^5.0.0",
     "javascript-obfuscator": "^4.1.1",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "postcss-nested": "^7.0.2"
   }
 }
