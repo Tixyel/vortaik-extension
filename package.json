@@ -18,7 +18,7 @@
     "commands": [
       {
         "command": "vortaik.helloWorld",
-        "title": "CLICA AQUIIIIIIIIIIII!!!"
+        "title": "Compact widget"
       }
     ],
     "menus": {
@@ -30,7 +30,7 @@
       "explorer/context": [
         {
           "command": "vortaik.helloWorld",
-          "when": "explorerResourceIsFolder",
+          "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
           "group": "vortaik@1"
         }
       ]
