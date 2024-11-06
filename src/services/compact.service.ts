@@ -102,7 +102,7 @@ export default class CompactService {
 
     Object.entries(files)
       .filter(([name, content]) => name && content)
-      .forEach(([name, content]) => zip.file(name, content));
+      .forEach(([name, content]) => zip.file(name.toLowerCase(), content));
 
     zip.file('widget.ini', `[HTML]\npath = "html.txt"\n\n[CSS]\npath = "css.txt"\n\n[JS]\npath = "js.txt"\n\n[FIELDS]\npath = "fields.txt"\n\n[DATA]\npath = "data.txt"`);
 
