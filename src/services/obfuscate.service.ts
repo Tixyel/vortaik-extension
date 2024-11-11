@@ -1,13 +1,20 @@
-import { obfuscate, ObfuscationResult } from 'javascript-obfuscator';
+import { obfuscate, ObfuscationResult, ObfuscatorOptions } from 'javascript-obfuscator';
 import postcss, { Result } from 'postcss';
 import autoprefixer from 'autoprefixer';
-import { minify } from 'html-minifier';
+import { minify, Options } from 'html-minifier';
 import cssnano from 'cssnano';
+import nested from 'postcss-nested';
 
 export default class ObfuscateService {
-  public async obfuscateCSS(content: string): Promise<string> {
+  public static async obfuscateCSS(content: string, options?: autoprefixer.Options & { removeNesting?: boolean }): Promise<string> {
     try {
-      const result: Result = await postcss([autoprefixer({ overrideBrowserslist: ['Chrome 127'] }), cssnano({ preset: 'default' })]).process(content, { from: undefined });
+      const plugins: postcss.AcceptedPlugin[] = [autoprefixer({ overrideBrowserslist: ['Chrome 127'], ...options }), cssnano({ preset: 'default' })];
+
+      if (options?.removeNesting) {
+        plugins.unshift(nested());
+      }
+
+      const result: Result = await postcss(plugins).process(content, { from: undefined });
 
       return result.css;
     } catch (error) {
@@ -16,16 +23,16 @@ export default class ObfuscateService {
     }
   }
 
-  public async obfuscateJavaScript(content: string): Promise<ObfuscationResult> {
+  public static async obfuscateJavaScript(content: string, options?: ObfuscatorOptions): Promise<ObfuscationResult> {
     try {
-      return obfuscate(content, { compact: true, log: false, debugProtection: false });
+      return obfuscate(content, { compact: true, log: false, debugProtection: false, ...options });
     } catch (error) {
       console.error('Error obfuscating JavaScript:', error);
       throw error;
     }
   }
 
-  public async minifyHTML(content: string): Promise<string> {
+  public static async minifyHTML(content: string, options?: Options): Promise<string> {
     try {
       const body = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1]?.trim() ?? '';
 
@@ -35,6 +42,7 @@ export default class ObfuscateService {
         removeAttributeQuotes: false,
         minifyCSS: true,
         minifyJS: true,
+        ...options,
       });
     } catch (error) {
       console.error('Error minifying HTML:', error);
