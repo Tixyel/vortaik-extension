@@ -1,42 +1,46 @@
+import * as vscode from 'vscode';
 import JSZip from 'jszip';
 import FileSystemService from './fs.service';
 import ObfuscateService from './obfuscate.service';
+import { Options } from 'html-minifier';
+import autoprefixer from 'autoprefixer';
+import { ObfuscatorOptions } from 'javascript-obfuscator';
 
-export interface CompactServiceOptions {
-  files: Record<string, string>;
-  finished: Record<string, string>;
-  find: {
-    html: string;
-    css: string;
-    javascript: string;
-    fields: string;
-    simulation: string;
-  };
-  'widget.io': Record<string, string>;
+export interface CompactServiceFiles {
+  [key: string]: string;
+}
+
+export interface CompactFilesOptions {
+  html?: Options;
+  css?: autoprefixer.Options & { removeNesting?: boolean };
+  javascript?: ObfuscatorOptions;
+  simulation?: ObfuscatorOptions;
 }
 
 export default class CompactService {
-  private FileSystemService: FileSystemService = new FileSystemService();
-  private ObfuscateService: ObfuscateService = new ObfuscateService();
+  private FileSystemService = FileSystemService;
+  private ObfuscateService = ObfuscateService;
 
-  files: CompactServiceOptions['files'];
-  finished: CompactServiceOptions['finished'];
-  'widget.io': CompactServiceOptions['widget.io'];
+  'files': Record<string, string>;
+  'finished': Record<string, string>;
+  'widgetIO': Record<string, string>;
 
-  constructor(options: CompactServiceOptions) {
-    this.files = Object.entries(options.find).reduce((acc: Record<string, string>, [key, value]: string[]) => {
+  constructor(files: CompactServiceFiles) {
+    const config = vscode.workspace.getConfiguration().get('vortaik') as { fileMappings: { [key: string]: Record<string, string> } };
+
+    this.finished = config.fileMappings.finished;
+    this['widgetIO'] = config.fileMappings.widgetIO;
+
+    this.files = Object.entries(config.fileMappings.find).reduce((acc: Record<string, string>, [key, value]: string[]) => {
       const available: string[] = value.split(',').map((w) => w.trim());
-      const findPath = Object.keys(options.files).find((key: string) => available.includes(key));
+      const findPath = Object.keys(files).find((key: string) => available.includes(key));
 
       if (findPath) {
-        acc[key] = options.files[findPath];
+        acc[key] = files[findPath];
       }
 
       return acc;
     }, {});
-
-    this.finished = options.finished;
-    this['widget.io'] = options['widget.io'];
   }
 
   public async readAllFiles() {
@@ -55,15 +59,15 @@ export default class CompactService {
     }, {});
   }
 
-  public async compact(files: CompactServiceOptions['files']) {
+  public async compact(files: CompactServiceFiles, options?: CompactFilesOptions) {
     const [html, css, javascript, simulation] = await Promise.all([
-      this.ObfuscateService.minifyHTML(files.html),
-      this.ObfuscateService.obfuscateCSS(files.css),
-      this.ObfuscateService.obfuscateJavaScript(files.javascript),
-      this.ObfuscateService.obfuscateJavaScript(files.simulation),
+      this.ObfuscateService.minifyHTML(files.html, options?.html),
+      this.ObfuscateService.obfuscateCSS(files.css, options?.css),
+      this.ObfuscateService.obfuscateJavaScript(files.javascript, options?.javascript),
+      this.ObfuscateService.obfuscateJavaScript(files.simulation, options?.simulation),
     ]);
 
-    const compactedFiles: CompactServiceOptions['files'] = {
+    const compactedFiles: CompactServiceFiles = {
       'html': html,
       'css': css,
       'javascript': javascript.getObfuscatedCode(),
@@ -74,7 +78,7 @@ export default class CompactService {
     return compactedFiles;
   }
 
-  public async finishFiles(files: CompactServiceOptions['files']) {
+  public async finishFiles(files: CompactServiceFiles) {
     const finishedFiles = Object.entries(this.finished).reduce((acc: Record<string, string>, [key, value]) => {
       acc[key] = value
         .split(',')
@@ -100,10 +104,10 @@ export default class CompactService {
     return finishedFiles;
   }
 
-  public async createZip(files: CompactServiceOptions['files']) {
+  public async createZip(files: CompactServiceFiles) {
     const zip = new JSZip();
 
-    const widgetIOFiles = Object.entries(this['widget.io']).reduce((acc: Record<string, string>, [key, value]) => {
+    const widgetIOFiles = Object.entries(this['widgetIO']).reduce((acc: Record<string, string>, [key, value]) => {
       acc[key] = files[value];
 
       return acc;
