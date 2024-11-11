@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 export default class FileSystemService {
-  public async readFile(filePath: string): Promise<string | undefined> {
+  public static async readFile(filePath: string): Promise<string | undefined> {
     try {
       return await fs.readFile(filePath, 'utf-8');
     } catch (error) {
@@ -11,7 +11,7 @@ export default class FileSystemService {
     }
   }
 
-  public async createFile(filePath: string, content: string, format: BufferEncoding = 'utf-8'): Promise<void> {
+  public static async createFile(filePath: string, content: string, format: BufferEncoding = 'utf-8'): Promise<void> {
     try {
       const dir = path.dirname(filePath);
       await fs.mkdir(dir, { recursive: true });
@@ -21,7 +21,7 @@ export default class FileSystemService {
     }
   }
 
-  public async createDirectory(dirPath: string): Promise<void> {
+  public static async createDirectory(dirPath: string): Promise<void> {
     try {
       await fs.mkdir(dirPath, { recursive: true });
     } catch (error) {
@@ -29,7 +29,7 @@ export default class FileSystemService {
     }
   }
 
-  public async readDirectory(dirPath: string): Promise<string[] | undefined> {
+  public static async readDirectory(dirPath: string): Promise<string[] | undefined> {
     try {
       return await fs.readdir(dirPath);
     } catch (error) {
