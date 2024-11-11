@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import BaseCommand from '../../BaseCommand';
-import CompactService, { CompactFilesOptions, CompactServiceFiles } from '../../services/compact.service';
+import CompactService, { CompactFilesOptions } from '../../services/compact.service';
 import fs from '../../services/fs.service';
 import path from 'path';
-import { getSimulation, isSimulationOutdated, SelectSimulation } from '../../functions/simulation';
+import { getSimulation, SelectSimulation } from '../../functions/simulation';
 import { getFiles } from '../../functions/developmentFolder';
 
 export default class compactWidget extends BaseCommand {
