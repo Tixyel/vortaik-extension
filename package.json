@@ -48,12 +48,12 @@
         {
           "command": "vortaik.updateSimulationFile",
           "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
-          "group": "vortaik@0"
+          "group": "vortaik@1"
         },
         {
           "command": "vortaik.compactWidget",
           "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
-          "group": "vortaik@1"
+          "group": "vortaik@9"
         }
       ]
     },
@@ -71,7 +71,7 @@
           "description": "Github GIST Simulations ID",
           "default": ""
         },
-        "tixyel-widget.fileMappings": {
+        "vortaik.fileMappings": {
           "type": "object",
           "description": "Mappings for file types",
           "default": {
