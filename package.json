@@ -17,23 +17,171 @@
   "contributes": {
     "commands": [
       {
-        "command": "vortaik.helloWorld",
+        "command": "vortaik.compactWidget",
         "title": "Compact widget"
+      },
+      {
+        "command": "vortaik.updateAllSimulation",
+        "title": "Update all Simulations"
+      },
+      {
+        "command": "vortaik.updateSimulationFile",
+        "title": "Update simulation"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "vortaik.helloWorld"
+          "command": "vortaik.compactWidget",
+          "when": "false"
+        },
+        {
+          "command": "vortaik.updateSimulationFile",
+          "when": "false"
+        },
+        {
+          "command": "vortaik.updateAllSimulation",
+          "when": "true"
         }
       ],
       "explorer/context": [
         {
-          "command": "vortaik.helloWorld",
+          "command": "vortaik.updateSimulationFile",
+          "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
+          "group": "vortaik@0"
+        },
+        {
+          "command": "vortaik.compactWidget",
           "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
           "group": "vortaik@1"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Vortaik options",
+      "properties": {
+        "vortaik.githubToken": {
+          "type": "string",
+          "description": "Github token for gist access",
+          "default": ""
+        },
+        "vortaik.simulationGistID": {
+          "type": "string",
+          "description": "Github GIST Simulations ID",
+          "default": ""
+        },
+        "tixyel-widget.fileMappings": {
+          "type": "object",
+          "description": "Mappings for file types",
+          "default": {
+            "find": {
+              "html": "index.html, main.html",
+              "css": "style.css, styles.css, style.scss, styles.scss",
+              "javascript": "script.jsx, script.js, scripts.jsx, scripts.js",
+              "fields": "cf.json, fields.json, custom-fields.json",
+              "simulation": "simulation.js, latest.js"
+            },
+            "finished": {
+              "HTML.txt": "simulation, html",
+              "CSS.txt": "css,",
+              "SCRIPT.txt": "javascript",
+              "CF.txt": "fields"
+            },
+            "widget.io": {
+              "css.txt": "CSS.txt",
+              "html.txt": "HTML.txt",
+              "js.txt": "SCRIPT.txt",
+              "fields.txt": "CF.txt"
+            }
+          },
+          "properties": {
+            "find": {
+              "type": "object",
+              "description": "File types to find",
+              "properties": {
+                "html": {
+                  "type": "string",
+                  "default": "index.html, main.html",
+                  "description": "HTML files"
+                },
+                "css": {
+                  "type": "string",
+                  "default": "style.css, styles.css, style.scss, styles.scss",
+                  "description": "CSS files (separate by comma)"
+                },
+                "javascript": {
+                  "type": "string",
+                  "default": "script.jsx, script.js, scripts.jsx, scripts.js",
+                  "description": "JavaScript files (separate by comma)"
+                },
+                "fields": {
+                  "type": "string",
+                  "default": "cf.json, fields.json, custom-fields.json",
+                  "description": "Fields files (separate by comma)"
+                },
+                "simulation": {
+                  "type": "string",
+                  "default": "simulation.js, latest.js",
+                  "description": "Simulation files in .vortaik (separate by comma)"
+                }
+              }
+            },
+            "finished": {
+              "type": "object",
+              "description": "Mappings for finished files",
+              "properties": {
+                "HTML.txt": {
+                  "type": "string",
+                  "default": "simulation, html",
+                  "description": "Finished HTML file"
+                },
+                "CSS.txt": {
+                  "type": "string",
+                  "default": "css,",
+                  "description": "Finished CSS file"
+                },
+                "SCRIPT.txt": {
+                  "type": "string",
+                  "default": "javascript",
+                  "description": "Finished JavaScript file"
+                },
+                "CF.txt": {
+                  "type": "string",
+                  "default": "fields",
+                  "description": "Finished Fields file"
+                }
+              }
+            },
+            "widget.io": {
+              "type": "object",
+              "description": "File mappings for widget output",
+              "properties": {
+                "css.txt": {
+                  "type": "string",
+                  "default": "CSS.txt",
+                  "description": "CSS output file"
+                },
+                "html.txt": {
+                  "type": "string",
+                  "default": "HTML.txt",
+                  "description": "HTML output file"
+                },
+                "js.txt": {
+                  "type": "string",
+                  "default": "SCRIPT.txt",
+                  "description": "JavaScript output file"
+                },
+                "fields.txt": {
+                  "type": "string",
+                  "default": "CF.txt",
+                  "description": "Fields output file"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "scripts": {
