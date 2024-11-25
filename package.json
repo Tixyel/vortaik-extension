@@ -21,6 +21,10 @@
         "title": "Compact widget"
       },
       {
+        "command": "vortaik.createTemplate",
+        "title": "Create widget template"
+      },
+      {
         "command": "vortaik.updateAllSimulation",
         "title": "Update all Simulations"
       },
@@ -33,6 +37,10 @@
       "commandPalette": [
         {
           "command": "vortaik.compactWidget",
+          "when": "false"
+        },
+        {
+          "command": "vortaik.createTemplate",
           "when": "false"
         },
         {
@@ -54,6 +62,11 @@
           "command": "vortaik.compactWidget",
           "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
           "group": "vortaik@9"
+        },
+        {
+          "command": "vortaik.createTemplate",
+          "when": "explorerResourceIsFolder",
+          "group": "vortaik@8"
         }
       ]
     },
@@ -88,7 +101,7 @@
               "SCRIPT.txt": "javascript",
               "CF.txt": "fields"
             },
-            "widget.io": {
+            "widgetIO": {
               "css.txt": "CSS.txt",
               "html.txt": "HTML.txt",
               "js.txt": "SCRIPT.txt",
@@ -153,7 +166,7 @@
                 }
               }
             },
-            "widget.io": {
+            "widgetIO": {
               "type": "object",
               "description": "File mappings for widget output",
               "properties": {
@@ -176,6 +189,122 @@
                   "type": "string",
                   "default": "CF.txt",
                   "description": "Fields output file"
+                }
+              }
+            }
+          }
+        },
+        "vortaik.fileStructure": {
+          "type": "array",
+          "description": "Default file and folder structure for projects",
+          "default": [
+            {
+              "name": "00 - Widget template",
+              "type": "folder",
+              "content": [
+                {
+                  "name": "development",
+                  "type": "folder",
+                  "content": [
+                    {
+                      "name": "index.html",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "style.css",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "script.jsx",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "cf.json",
+                      "type": "file",
+                      "content": "{}"
+                    }
+                  ]
+                },
+                {
+                  "name": "finished",
+                  "type": "folder",
+                  "content": [
+                    {
+                      "name": "HTML.txt",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "CSS.txt",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "SCRIPT.txt",
+                      "type": "file",
+                      "content": ""
+                    },
+                    {
+                      "name": "CF.txt",
+                      "type": "file",
+                      "content": "{}"
+                    }
+                  ]
+                },
+                {
+                  "name": "widget.io",
+                  "type": "folder"
+                },
+                {
+                  "name": "widget.ini",
+                  "type": "file",
+                  "content": "simulation=10.1.0"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "content": {
+              "type": "array",
+              "description": "List of files and folders inside a folder",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the file or folder"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "folder",
+                      "file"
+                    ],
+                    "description": "Type of the item, either 'folder' or 'file'"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "File content (only applicable for files)"
+                  },
+                  "folderContent": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "description": "String representation (e.g., list or path)"
+                      },
+                      {
+                        "type": "array",
+                        "description": "List of items (files or subfolders) inside a folder",
+                        "items": {
+                          "type": "string",
+                          "description": "Names of files or folders inside the folder"
+                        }
+                      }
+                    ]
+                  }
                 }
               }
             }
