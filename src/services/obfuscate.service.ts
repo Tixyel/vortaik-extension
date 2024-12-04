@@ -25,7 +25,19 @@ export default class ObfuscateService {
 
   public static async obfuscateJavaScript(content: string, options?: ObfuscatorOptions): Promise<ObfuscationResult> {
     try {
-      return obfuscate(content, { compact: true, log: false, debugProtection: false, ...options });
+      return obfuscate(content, {
+        compact: true,
+        log: false,
+        debugProtection: false,
+        selfDefending: false,
+        deadCodeInjection: false,
+        controlFlowFlattening: false,
+        unicodeEscapeSequence: false,
+        stringArray: false,
+        simplify: false,
+        identifierNamesGenerator: 'mangled',
+        ...options,
+      });
     } catch (error) {
       console.error('Error obfuscating JavaScript:', error);
       throw error;
