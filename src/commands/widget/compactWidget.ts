@@ -29,18 +29,19 @@ export default class compactWidget extends BaseCommand {
       files.simulation = correctSimulation.content;
     }
 
-    const [finishedFiles, olderFinishedFiles] = await Promise.all([
-      generateFinishedWidget(compact, files, fsPath),
+    const [finishedFiles, betaFinishedFiles] = await Promise.all([
       generateFinishedWidget(compact, files, fsPath, { css: { overrideBrowserslist: ['Chrome 103'], removeNesting: true } }),
+      generateFinishedWidget(compact, files, fsPath),
     ]);
 
     Object.entries(finishedFiles).forEach(([file, content]) => fs.createFile(path.join(fsPath, 'finished', file), content));
+    Object.entries(betaFinishedFiles).forEach(([file, content]) => fs.createFile(path.join(fsPath, 'finished • beta', file), content));
 
     vscode.window.showInformationMessage('Finished files generated!');
 
     await Promise.all([
-      generateWidgetIO(compact, finishedFiles, fsPath, `${path.basename(fsPath)}`),
-      generateWidgetIO(compact, olderFinishedFiles, fsPath, `${path.basename(fsPath)} - Older`),
+      generateWidgetIO(compact, finishedFiles, fsPath, `${path.basename(fsPath)} • Beta`),
+      generateWidgetIO(compact, betaFinishedFiles, fsPath, `${path.basename(fsPath)}`),
     ]);
 
     vscode.window.showInformationMessage('Widget.io zip file generated!');
