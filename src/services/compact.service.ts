@@ -86,7 +86,7 @@ export default class CompactService {
         .map((w) => {
           let value = files[w];
 
-          if (key === 'HTML.txt') {
+          if (key.startsWith('HTML') || key.endsWith('.html')) {
             if (['javascript', 'simulation'].includes(w)) {
               value = `<script>${value}</script>`;
             } else if (['css'].includes(w)) {
