@@ -40,8 +40,8 @@ export default class compactWidget extends BaseCommand {
     vscode.window.showInformationMessage('Finished files generated!');
 
     await Promise.all([
-      generateWidgetIO(compact, finishedFiles, fsPath, `${path.basename(fsPath)} • Beta`),
-      generateWidgetIO(compact, betaFinishedFiles, fsPath, `${path.basename(fsPath)}`),
+      generateWidgetIO(compact, finishedFiles, fsPath, `${path.basename(fsPath)}`),
+      generateWidgetIO(compact, betaFinishedFiles, fsPath, `${path.basename(fsPath)} • Beta`),
     ]);
 
     vscode.window.showInformationMessage('Widget.io zip file generated!');
