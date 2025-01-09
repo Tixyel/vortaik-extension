@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import fs from '../services/fs.service';
 import * as ini from 'ini';
 import path from 'path';
-import Gist, { RequestHeaders } from '../services/gist.service';
+import Gist, { GistResponseFile, RequestHeaders } from '../services/gist.service';
+import FileSystemService from '../services/fs.service';
 
 export async function getSimulation(workspacePath: string) {
   const vortaikPath = path.join(workspacePath, '.vortaik');
@@ -16,7 +17,7 @@ export async function getSimulation(workspacePath: string) {
   }, {});
 }
 
-export async function isSimulationOutdated(files: Record<string, string>, widgetPath: string): Promise<{ outdated: boolean; widget?: string; current: string }> {
+export async function isSimulationOutdated(files: Record<string, string>, widgetPath: string): Promise<{ status: 'higher' | 'older' | 'current'; widget?: string }> {
   const regex = /\b(\d+\.\d+\.\d+)\b/g;
 
   const simulationMatch = files.simulation.match(regex);
@@ -25,22 +26,33 @@ export async function isSimulationOutdated(files: Record<string, string>, widget
   try {
     const iniFile = await fs.readFile(path.join(widgetPath, 'widget.ini'));
 
-    // 0 == same
-    // -1 == higher
-    // 1 == lower
-    const isDifferent = (a: string, b: string) => [1, -1].some((e) => e === a.localeCompare(b, undefined, { numeric: true }));
+    // -1 == widget use a higher version
+    // 0 == widget use the current version
+    // 1 == widget use a lower version
+    const isDifferent = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
 
     if (iniFile && simulationVersion) {
       const options = ini.parse(iniFile);
       const widgetVersion = options['simulation'];
 
-      if (widgetVersion && isDifferent(simulationVersion, widgetVersion) && simulationVersion !== widgetVersion) {
-        console.error('Simulation version is incorrect', widgetVersion, simulationVersion);
+      if (widgetVersion) {
+        let difference = isDifferent(simulationVersion, widgetVersion);
+        if (difference === 1 && simulationVersion !== widgetVersion) {
+          console.error(`Simulation version is higher than widget's`, widgetVersion, simulationVersion);
 
-        return { outdated: true, widget: widgetVersion, current: simulationVersion };
+          return { status: 'older', widget: widgetVersion };
+        } else if (difference === -1 && simulationVersion !== widgetVersion) {
+          console.error(`Simulation version is older than widget's`, widgetVersion, simulationVersion);
+
+          return { status: 'higher', widget: widgetVersion };
+        } else {
+          console.error('The current version is present.', widgetPath, widgetVersion, simulationVersion);
+        }
       } else {
-        console.error('Widget version is undefined or the current version is present.', widgetPath, widgetVersion, simulationVersion);
+        console.error('Widget version is undefined', widgetPath, widgetVersion, simulationVersion);
       }
+
+      return { status: 'current', widget: widgetVersion };
     } else {
       console.error("Can't find widget.ini or simulation version", simulationVersion, iniFile);
     }
@@ -48,27 +60,62 @@ export async function isSimulationOutdated(files: Record<string, string>, widget
     console.error('Something went wrong', error);
   }
 
-  return { outdated: false, current: simulationVersion };
+  return { status: 'current' };
 }
 
 export async function SelectSimulation(files: Record<string, string>, widgetPath: string) {
-  const { outdated, widget } = await isSimulationOutdated(files, widgetPath);
+  const { status, widget } = await isSimulationOutdated(files, widgetPath);
   const config: { githubToken: string; simulationGistID: string } | undefined = vscode.workspace.getConfiguration().get('vortaik');
 
-  if (config && config.githubToken && config.simulationGistID && outdated) {
+  if (config && config.githubToken && config.simulationGistID && widget) {
     const token = config.githubToken;
     const simulationGistID = config.simulationGistID;
     const headers: RequestHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
     try {
       const global = await Gist.get(simulationGistID, headers);
-      const file = global.files[widget + '.js'];
 
-      if (global && file) {
-        return { version: widget, content: await Gist.getFileContentFromRawUrl(file.raw_url, headers) };
+      if (global.files[widget + '.js'] && status !== 'current') {
+        const file = global.files[widget + '.js'];
+
+        if (global && file) {
+          return { version: widget, content: await Gist.getFileContentFromRawUrl(file.raw_url, headers) };
+        }
+      } else {
+        console.error('Simulation not found', widget);
+
+        try {
+          await Gist.addFiles(global.id, headers, { [widget + '.js']: { filename: widget + '.js', content: files.simulation } as GistResponseFile });
+
+          vscode.window.showInformationMessage('Simulation added to the global gist!');
+        } catch (error) {
+          console.error('Failed to add simulation', error);
+        }
+
+        return undefined;
       }
     } catch (error) {
       console.error(error);
+
+      return undefined;
+    }
+  }
+}
+
+export async function getGlobalSimulationGist() {
+  const config: { githubToken: string; simulationGistID: string } | undefined = vscode.workspace.getConfiguration().get('vortaik');
+
+  if (config && config.githubToken && config.simulationGistID) {
+    const token = config.githubToken;
+    const simulationGistID = config.simulationGistID;
+    const headers: RequestHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+
+    try {
+      const global = await Gist.get(simulationGistID, headers);
+
+      return global;
+    } catch (error) {
+      console.error('Error while pushing gist', error);
 
       return undefined;
     }
