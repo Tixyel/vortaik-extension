@@ -27,6 +27,10 @@ export default class compactWidget extends BaseCommand {
 
     if (correctSimulation && correctSimulation.content) {
       files.simulation = correctSimulation.content;
+    } else {
+      vscode.window.showInformationMessage('Simulation version not found');
+
+      return;
     }
 
     const [finishedFiles, betaFinishedFiles] = await Promise.all([
