@@ -25,6 +25,10 @@
         "title": "Create widget template"
       },
       {
+        "command": "vortaik.updateToLatestVersion",
+        "title": "Update widget to latest version"
+      },
+      {
         "command": "vortaik.updateAllSimulation",
         "title": "Update all Simulations"
       },
@@ -44,6 +48,10 @@
           "when": "false"
         },
         {
+          "command": "vortaik.updateToLatestVersion",
+          "when": "false"
+        },
+        {
           "command": "vortaik.updateSimulationFile",
           "when": "false"
         },
@@ -54,9 +62,14 @@
       ],
       "explorer/context": [
         {
-          "command": "vortaik.updateSimulationFile",
+          "command": "vortaik.updateToLatestVersion",
           "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
           "group": "vortaik@1"
+        },
+        {
+          "command": "vortaik.updateSimulationFile",
+          "when": "explorerResourceIsFolder && resourceFilename =~ /^\\d{2} - .*/is",
+          "group": "vortaik@2"
         },
         {
           "command": "vortaik.compactWidget",
