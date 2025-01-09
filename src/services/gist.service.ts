@@ -9,6 +9,9 @@ export interface GistResponseFile {
   raw_url: string;
   size: number;
   type: string;
+
+  // file content
+  content?: string;
 }
 
 export interface GistResponse {
@@ -128,6 +131,10 @@ export default class GistService {
             payload[name ?? version + '.js' ?? file.filename] = { content: content };
 
             return resolve(content);
+          } else if (file.content) {
+            payload[name] = { content: file.content };
+
+            return resolve(file.content);
           }
 
           return resolve(undefined);
