@@ -81,16 +81,20 @@ export async function SelectSimulation(files: Record<string, string>, widgetPath
         if (global && file) {
           return { version: widget, content: await Gist.getFileContentFromRawUrl(file.raw_url, headers) };
         }
-      } else {
-        console.error('Simulation not found', widget);
-
+      } else if (global.files[widget + '.js'] && status === 'current') {
+        return { version: widget, content: files.simulation };
+      } else if (!global.files[widget + '.js'] && status === 'current') {
         try {
           await Gist.addFiles(global.id, headers, { [widget + '.js']: { filename: widget + '.js', content: files.simulation } as GistResponseFile });
 
           vscode.window.showInformationMessage('Simulation added to the global gist!');
+
+          return { version: widget, content: files.simulation };
         } catch (error) {
           console.error('Failed to add simulation', error);
         }
+      } else {
+        console.error('Simulation not found', widget);
 
         return undefined;
       }
