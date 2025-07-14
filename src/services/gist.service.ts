@@ -128,7 +128,7 @@ export default class GistService {
               version = version[0];
             }
 
-            payload[name ?? version + '.js' ?? file.filename] = { content: content };
+            payload[name ?? (version ? version + '.js' : null) ?? file.filename] = { content: content };
 
             return resolve(content);
           } else if (file.content) {
