@@ -12,7 +12,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onFileSystem:scheme",
+    "onStartupFinished",
+    "workspaceContains:filePattern"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -198,7 +202,18 @@
           }
         }
       }
-    }
+    },
+    "colors": [
+      {
+        "id": "vortaik.fileBadgeColor",
+        "description": "Cor do badge de versão para widget.ini",
+        "defaults": {
+          "light": "#c3a7e2",
+          "dark": "#c3a7e2",
+          "highContrast": "#c3a7e2"
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

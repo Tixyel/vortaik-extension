@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import BaseCommand from './BaseCommand';
+import { WidgetVersionBadgeProvider } from './lib';
 
 function registerCommands(context: vscode.ExtensionContext, dir: string) {
   const files = fs.readdirSync(dir);
@@ -28,7 +29,17 @@ function registerCommands(context: vscode.ExtensionContext, dir: string) {
 export function activate(context: vscode.ExtensionContext) {
   registerCommands(context, path.join(__dirname, 'commands'));
 
-  // todo
+  const provider = new WidgetVersionBadgeProvider();
+
+  context.subscriptions.push(vscode.window.registerFileDecorationProvider(provider));
+
+  vscode.workspace.onDidSaveTextDocument((doc) => {
+    if (path.basename(doc.uri.fsPath) === 'widget.ini') {
+      provider.scanWorkspace();
+    }
+  });
+
+  vscode.workspace.onDidChangeWorkspaceFolders(() => provider.scanWorkspace());
 }
 
 export function deactivate() {}
