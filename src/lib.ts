@@ -50,7 +50,7 @@ export class WidgetVersionBadgeProvider implements vscode.FileDecorationProvider
       console.log(`Checking decoration for ${uri.toString()}: version=${version}`);
 
       return {
-        badge: String(version).slice(0, 2).replace('.', ''),
+        badge: String(version).split('.')[0],
         tooltip: `Widget simulation version: ${version}`,
         color: new vscode.ThemeColor('vortaik.fileBadgeColor'),
       };
